@@ -1,0 +1,77 @@
+version: "4.10"
+
+services:
+  mongo:
+    image: mongo:6
+    container_name: mongoChat
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+  rabbitmq:
+    image: rabbitmq:3-management   # ✅ includes management UI
+    container_name: rabbitmq_serviceinChatApi
+    restart: always
+    ports:
+      - "5672:5672"    # main messaging port
+      - "15672:15672"  # management UI port
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq   # optional persistent data
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: always
+    ports:
+    - "6379:6379"
+    volumes:
+    - redis_data:/data
+  users-service:
+    build:
+      context: ./usersServices
+      dockerfile: Dockerfile
+    container_name: users-service-forChatApi
+    restart: always
+    ports:
+      - "8090:8090"
+    environment:
+      - NODE_ENV=production
+      - MONGO_URL=mongodb://mongo:27017/usersdb
+      - REDIS_URL=redis://redis:6379
+      - RabbitMQ_protocol=amqp
+      - RabbitMQ_hostname=rabbitmq
+      - RabbitMQ_port=5672
+      - RabbitMQ_username=guest
+      - RabbitMQ_password=guest
+    env_file:
+      - ./usersServices/.env
+    depends_on:
+      - mongo
+      - rabbitmq
+      - redis
+  mail-service:
+    build:
+      context: ./mailServices
+      dockerfile: Dockerfile
+    container_name: mail-service
+    restart: always
+    ports:
+      - "8089:8089"
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://redis:6379
+      - RabbitMQ_protocol=amqp
+      - RabbitMQ_hostname=rabbitmq
+      - RabbitMQ_port=5672
+      - RabbitMQ_username=guest
+      - RabbitMQ_password=guest
+    env_file:
+      - ./mailServices/.env
+    depends_on:
+      - rabbitmq
+      - redis
+
+volumes:
+  mongo_data:
+  rabbitmq_data:
+  redis_data:
