@@ -71,6 +71,22 @@ services:
       - rabbitmq
       - redis
 
+  chat-service:
+    build:
+      context: ./chatServices
+      dockerfile: Dockerfile
+    container_name: chat-service
+    restart: always
+    ports:
+      - "8091:8091"
+    environment:
+      - NODE_ENV=production
+      - MONGO_URL=mongodb://mongo:27017/chatdB
+    env_file:
+      - ./chatServices/.env
+    depends_on:
+      - mongo
+      
 volumes:
   mongo_data:
   rabbitmq_data:
