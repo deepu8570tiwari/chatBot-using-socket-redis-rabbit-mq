@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Chat</title>
+
+<style>
+  body { margin: 0; padding: 0; font-family: Arial; display: flex; height: 100vh; }
+  .sidebar {
+    width: 30%;
+    background-color: #111b21;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+  }
+  .searchBox {
+    padding: 10px;
+    background: #202c33;
+  }
+  .searchBox input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+  }
+  .users {
+    flex: 1;
+    overflow-y: auto;
+  }
+  .user {
+    padding: 15px;
+    border-bottom: 1px solid #2c3e45;
+    cursor: pointer;
+  }
+  .user:hover {
+    background-color: #2a3942;
+  }
+  .chatArea {
+    width: 70%;
+    background: #f0f2f5;
+    display: flex;
+    flex-direction: column;
+  }
+  .messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+  }
+  .msg {
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    max-width: 60%;
+    border-radius: 8px;
+  }
+  .me {
+    background: #d9fdd3;
+    margin-left: auto;
+  }
+  .other {
+    background: white;
+    margin-right: auto;
+  }
+  .inputArea {
+    display: flex;
+    padding: 10px;
+    background: white;
+  }
+  .inputArea input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+  }
+  .inputArea button {
+    padding: 12px 20px;
+    margin-left: 10px;
+    background: #25D366;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+  }
+</style>
+
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="searchBox">
+    <input type="text" placeholder="Search…">
+  </div>
+  <div class="users">
+    <div class="user">Rahul</div>
+    <div class="user">Neha</div>
+    <div class="user">Amit</div>
+    <div class="user">Pooja</div>
+  </div>
+</div>
+
+<div class="chatArea">
+  <div class="messages" id="messages"></div>
+  <div class="inputArea">
+    <input id="msgInput" type="text" placeholder="Type a message">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+</div>
+
+<script>
+  function sendMessage() {
+    let msg = document.getElementById("msgInput").value;
+    if (!msg) return;
+    addMessage(msg, "me");
+    document.getElementById("msgInput").value = "";
+  }
+
+  function addMessage(text, type) {
+    let messages = document.getElementById("messages");
+    let div = document.createElement("div");
+
+    div.className = "msg " + type;
+    div.innerText = text;
+
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+  }
+</script>
+
+</body>
+</html>
