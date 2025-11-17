@@ -34,6 +34,10 @@ services:
     restart: always
     ports:
       - "8090:8090"
+    volumes:
+    - ./usersServices:/app
+    - /app/node_modules
+    command: npm run dev
     environment:
       - NODE_ENV=production
       - MONGO_URL=mongodb://mongo:27017/usersdb
@@ -57,6 +61,10 @@ services:
     restart: always
     ports:
       - "8089:8089"
+    volumes:
+    - ./mailServices:/app
+    - /app/node_modules
+    command: npm run dev
     environment:
       - NODE_ENV=production
       - REDIS_URL=redis://redis:6379
@@ -79,9 +87,17 @@ services:
     restart: always
     ports:
       - "8091:8091"
+    volumes:
+    - ./chatServices:/app
+    - /app/node_modules
+    command: npm run dev
     environment:
       - NODE_ENV=production
       - MONGO_URL=mongodb://mongo:27017/chatdB
+      - USER_SERVICES=http://users-service:8090
+      - NODE_CLOUDINARY_CLOUD_NAME=dcvbiesxf
+      - NODE_CLOUDINARY_API_KEY=649413134236644
+      - NODE_CLOUDINARY_API_SECRET=2aQToi_hl1vavTDIIhcYbrJMfDw
     env_file:
       - ./chatServices/.env
     depends_on:
