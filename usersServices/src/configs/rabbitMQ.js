@@ -16,10 +16,10 @@ export const connectRabbitMq = async () => {
             channel = await connection.createChannel();
             console.log("RabbitMQ is connected Successfully");
             connection.on("close", () => {
-            console.error("❗ RabbitMQ connection closed. Reconnecting...");
-            channel = null;
-            setTimeout(connectRabbitMq, 5000);
-        });
+                console.error("❗ RabbitMQ connection closed. Reconnecting...");
+                channel = null;
+                setTimeout(connectRabbitMq, 5000);
+            });
 
         connection.on("error", (err) => {
             console.error("❗ RabbitMQ connection error:", err.message);
