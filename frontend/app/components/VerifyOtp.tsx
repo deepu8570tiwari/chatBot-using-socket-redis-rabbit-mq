@@ -9,7 +9,7 @@ import Loading from './Loading'
 import toast from 'react-hot-toast'
 
 const VerifyOtp = () => {
-  const {isAuth,setIsAuth,setUser,loading:userLoading}=useAppData()
+  const {isAuth,setIsAuth,setUser,loading:userLoading,fetchChats, fetchUsers}=useAppData()
   const [loading,setLoading]=useState(false);
   const [otp, setOtp] = useState(["","","","","",""]);
   const [error, setError]=useState("");
@@ -75,12 +75,14 @@ const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
         email,
         otp:optString,
       });
-      alert(data.message);
+      toast.success(data.message);
       Cookies.set("token",data.token,{expires:15,secure:false,path:"/" });
       setOtp(["","","","","",""]);
       inputRefs.current[0]?.focus();
       setUser(data.user);
       setIsAuth(true);
+      fetchChats();
+      fetchUsers();
     } catch (error:any) {
       setError(error.response.data.message);
     } finally{

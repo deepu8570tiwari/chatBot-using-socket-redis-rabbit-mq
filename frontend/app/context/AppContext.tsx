@@ -9,6 +9,7 @@ export const userService = "http://localhost:8090";
 export const chatService = "http://localhost:8091";
 
 export interface User {
+  username: any;
   _id: string;
   name: string;
   email: string;
@@ -36,10 +37,22 @@ interface AppContextType {
   user: User | null;
   loading: boolean;
   isAuth: boolean;
+
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
   setIsAuth: React.Dispatch<React.SetStateAction<boolean>>;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+
+  logoutUser: () => Promise<void>;
+  fetchUsers: () => Promise<void>;
+  fetchChats: () => Promise<void>;
+
+  chats: Chats[] | null;
+  users: User[] | null;
+
+  setChats: React.Dispatch<React.SetStateAction<Chats[] | null>>;
 }
+
+
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
@@ -66,7 +79,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         },
       });
 
-      setUser(data);
+      setUser(data.user);
       setIsAuth(true);
       setLoading(false);
     } catch (error) {
@@ -75,7 +88,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }
   };
 
-  async function logout(){
+  async function logoutUser(){
     Cookies.remove("token");
     setIsAuth(false);
     setUser(null);
@@ -95,14 +108,29 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       
     }
   }
+  const [users, setUsers]=useState<User[] | null>(null)
+  async function fetchUsers(){
+    const token=Cookies.get("token");
+    try {
+      const {data}=await axios.get(`${userService}/api/v1/users/all-users`,{
+        headers:{
+          Authorization:`Bearer ${token}`,
+        },
+      })
+      setUsers(data.user);
+    } catch (error) {
+      
+    }
+  }
   useEffect(() => {
     fetchUser();
     fetchChats();
+    fetchUsers();
   }, []);
 
   return (
     <AppContext.Provider
-      value={{ user, setUser, isAuth, setIsAuth, loading, setLoading }}
+      value={{ user, setUser, isAuth, setIsAuth, loading, setLoading, logoutUser,fetchUsers,fetchChats,chats, users,setChats}}
     >
       {children}
       <Toaster/>

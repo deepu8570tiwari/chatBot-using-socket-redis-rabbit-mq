@@ -16,13 +16,9 @@ export const isAuth = async (req, res, next) => {
     // Verify and decode JWT
     const decoded = jwt.verify(token, process.env.NODE_JWT_TOKEN);
 
-    // Log decoded value properly
-    console.log("Decoded JWT:", decoded);
-
     if (!decoded?.user) {
       return res.status(401).json({ message: "Invalid JWT token" });
     }
-
     // Fetch full user and attach to req
     const user = await User.findById(decoded.user._id).select("-password");
     if (!user) {
