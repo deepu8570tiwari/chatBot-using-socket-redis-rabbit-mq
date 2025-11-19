@@ -44,7 +44,6 @@ const ChatSideBar = ({
   const [searchQuery, setSearchQuery] = useState("");
 
   const loggedInUserId = loggedInUser?._id;
-console.log("userinfoprofile",users)
   return (
     <aside
       className={`fixed z-20 sm:static top-0 left-0 h-screen w-80 bg-gray-900 border-r border-gray-700 transform

@@ -11,7 +11,6 @@ export const chatService = "http://localhost:8091";
 export interface User {
   username: any;
   _id: string;
-  name: string;
   email: string;
 }
 

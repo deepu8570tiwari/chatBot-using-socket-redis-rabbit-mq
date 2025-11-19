@@ -8,6 +8,10 @@ import toast from 'react-hot-toast';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import { create } from 'domain';
+import ChatHeader from '../components/ChatHeader';
+import { Menu } from 'lucide-react';
+import ChatMessages from '../components/ChatMessages';
+import MessageInput from '../components/MessageInput';
 
 export interface Message{
   _id:string;
@@ -39,7 +43,24 @@ const ChatApp = () => {
       router.push("/login");
     }
   },[isAuth, router, loading]);
+
   const handleLogout=()=>logoutUser();
+  async function fetchChat(){
+    try {
+      const token =Cookies.get("token");
+      const {data}= await axios.get(`${chatService}/api/v1/chat/message/${selectedUser}`,{
+        headers:{
+          Authorization:`Bearer ${token}`,
+        }
+      })
+      setMessages(data.messages);
+      setUsers(data.otherUser.user);
+      await fetchChats();
+    } catch (error) {
+      console.log(error);
+      toast.error("failed to load error");
+    }
+  }
   async function createChat(u:User){
     try {
       const token =Cookies.get("token");
@@ -57,6 +78,11 @@ const ChatApp = () => {
       toast.error("failed to start chat");
     }
   }
+  useEffect(()=>{
+    if(selectedUser){
+      fetchChat();
+    }
+  },[selectedUser])
   if(loading) return <Loading/>;
   return (
     <div className="min-h-screen flex bg-gray-900 text-white relative overflow-hidden">
@@ -72,8 +98,16 @@ const ChatApp = () => {
       setSelectdUser={setSelectedUser} 
       handleLogout={handleLogout}
       createChat={createChat}/>
-      <div className='flex-1 flex flex-col justify-between p-4 backdrop blur-xl bg-white/5 border border-white/10'>
-
+     {/* MAIN CHAT AREA */}
+      <div className="flex-1 flex flex-col justify-between p-4 backdrop-blur-xl bg-white/5  border-white/10">
+          {/* CHAT HEADER */}
+          <ChatHeader 
+            user={user}
+            setSidebarOpen={setSidebarOpen}
+            isTyping={isTyping}
+          />
+          <ChatMessages selectedUser={selectedUser} messages={messages} loggedInUser={loggedInUser}/>
+          <MessageInput/>
       </div>
     </div>
   )
