@@ -187,8 +187,8 @@ CLOUDINARY_KEY=
 
 Frontend `.env.local`:
 ```
-NEXT_PUBLIC_USERSERVICE=http://localhost:8001
-NEXT_PUBLIC_CHATSERVICE=http://localhost:8002
+NEXT_PUBLIC_USERSERVICE=http://localhost:8090
+NEXT_PUBLIC_CHATSERVICE=http://localhost:8091
 ```
 
 ---
@@ -207,13 +207,13 @@ docker-compose up -d
 http://localhost:3000
 
 ### 👤 User Service
-http://localhost:8001
+http://localhost:8090
 
 ### 💬 Chat Service
-http://localhost:8002
+http://localhost:8091
 
 ### 📧 Mail Service
-http://localhost:8003
+http://localhost:8089
 
 ### 🐇 RabbitMQ Dashboard
 http://localhost:15672
