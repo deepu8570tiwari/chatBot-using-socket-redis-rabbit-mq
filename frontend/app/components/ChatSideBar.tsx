@@ -26,6 +26,7 @@ interface chatSideBarProps {
   setSelectdUser: (userId: string | null) => void;
   handleLogout: () => void;
   createChat:(user:User)=>void;
+  onlineUsers:string[];
 }
 
 const ChatSideBar = ({
@@ -40,6 +41,7 @@ const ChatSideBar = ({
   setSelectdUser,
   handleLogout,
   createChat,
+  onlineUsers,
 }: chatSideBarProps) => {
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -122,11 +124,21 @@ const ChatSideBar = ({
                     onClick={()=>createChat(u)}
                   >
                     <div className="flex items-center gap-3">
+                      <div className="relative">
                       <UserCircle className="w-6 h-6 text-gray-300" />
+                      {
+                        onlineUsers.includes(u._id)&& (<span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-gray-900"/>)
+                      }
+                      </div>
                       <div className="flex-1 min-w-0">
                         <span className="font-medium text-white">
                           {u.username}
                         </span>
+                        <div className="text-xs text-gray-400 mt-0.5">
+                          {
+                            onlineUsers.includes(u._id)?"Online":"Offline"
+                          }
+                        </div>
                       </div>
                     </div>
                   </button>
@@ -160,6 +172,9 @@ const ChatSideBar = ({
           <div className="w-12 h-12 rounded-full bg-gray-700 flex items-center justify-center">
             <UserCircle className="w-7 h-7 text-gray-400" />
           </div>
+          {onlineUsers.includes(chat.user._id) && (
+            (<span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-gray-900"/>)
+          )}
         </div>
 
         <div className="flex-1 min-w-0">

@@ -3,10 +3,10 @@ import { Chat } from "../models/chatModels.js";
 import { Messages } from "../models/messagesModel.js";
 import { uploadToCloudinary } from "../middlewares/upload.js";
 import axios from "axios";
+import { getReceiverSocketId, io } from "../configs/socket.js";
 export const createNewChat = tryCatch(async (req, res) => {
   const userId = req.user._id;
   const { otherUserId } = req.body;
-
   // 1. Validate other user ID
   if (!otherUserId) {
     return res.status(400).json({
@@ -14,7 +14,6 @@ export const createNewChat = tryCatch(async (req, res) => {
       message: "Other userId is required"
     });
   }
-
   // Prevent user from creating chat with themself
   if (otherUserId === userId.toString()) {
     return res.status(400).json({
@@ -22,7 +21,6 @@ export const createNewChat = tryCatch(async (req, res) => {
       message: "You cannot create a chat with yourself"
     });
   }
-
   // 2. Check if chat already exists
   const existingChat = await Chat.findOne({
     users: { $all: [userId, otherUserId], $size: 2 }
@@ -126,12 +124,27 @@ export const sendMessage = tryCatch(async (req, res) => {
   if (!isUserInChat) {
     return res.status(403).json({ message: "Not a participant of this chat" });
   }
+  const otherUserId = chat.users.find(
+  (id) => id.toString() !== senderId.toString()
+);
 
+if (!otherUserId) {
+  return res.status(400).json({ message: "Other user not found" });
+}
+  const receiverSocketId=getReceiverSocketId(otherUserId.toString());
+  let isReceiverInChatRoom=false;
+  if(receiverSocketId){
+    const receiverSocket=io.sockets.sockets.get(receiverSocketId);
+    if(receiverSocket && receiverSocket.rooms.has(chatId)){
+      isReceiverInChatRoom=true;
+    }
+  }
   // Build message object
   let messageData = {
     chatId,
     sender: senderId,
-    seen: false,
+    seen: isReceiverInChatRoom,
+    seenAt:isReceiverInChatRoom? new Date():undefined,
   };
 
   // IMAGE UPLOAD ✔
@@ -155,6 +168,21 @@ export const sendMessage = tryCatch(async (req, res) => {
     updatedAt: new Date(),
   });
 
+  io.to(chatId).emit("newMessage",savedMessage);
+  if(receiverSocketId){
+    io.to(receiverSocketId).emit("newMessage",savedMessage)
+  }
+  const senderSocketId=getReceiverSocketId(senderId.toString())
+  if(senderSocketId){
+    io.to(senderSocketId).emit("newMessage",savedMessage)
+  }
+  if(isReceiverInChatRoom && senderSocketId){
+    io.to(senderSocketId).emit("messageSeen",{
+      chatId:chatId,
+      seenBy:otherUserId,
+      messageIds:[savedMessage._id]
+    })
+  }
   res.status(201).json({
     message: savedMessage,
     sender: senderId,
@@ -163,7 +191,6 @@ export const sendMessage = tryCatch(async (req, res) => {
 export const getMessageByChatId = tryCatch(async (req, res) => {
   const userId = req.user?._id;
   const { chatId } = req.params;
-  console.log(req.params);
   if (!userId) {
     return res.status(401).json({ status: false, message: "User ID is missing" });
   }
@@ -176,12 +203,17 @@ export const getMessageByChatId = tryCatch(async (req, res) => {
   }
   // Check membership
   const isUserInChat = chat.users.some(
-    (id) => id.toString() === userId.toString()
+    (userId) => userId.toString() === userId.toString()
   );
   if (!isUserInChat) {
     return res.status(403).json({ message: "Not a participant of this chat" });
   }
-  // Mark unseen messages as seen
+
+  const messagesToMarkSeen = await Messages.find({ 
+    chatId:chatId,
+    sender:{$ne:userId},
+    seen:false,
+  });
   await Messages.updateMany(
     {
       chatId,
@@ -193,8 +225,7 @@ export const getMessageByChatId = tryCatch(async (req, res) => {
       seenAt: new Date(),
     }
   );
-  // Fetch all messages (oldest first)
-  const messages = await Messages.find({ chatId }).sort({ createdAt: 1 });
+  const messages=await Messages.find({chatId}).sort({createdAt:1});
   // Find other user
   const otherUserId = chat.users.find(
     (id) => id.toString() !== userId.toString()
@@ -202,17 +233,36 @@ export const getMessageByChatId = tryCatch(async (req, res) => {
   if (!otherUserId) {
     return res.status(400).json({ message: "No other user in chat" });
   }
-  let otherUser = null;
   try {
     const { data } = await axios.get(
       `${process.env.USER_SERVICES}/api/v1/users/${otherUserId}`
     );
-    otherUser = data;
+    if(!otherUserId){
+      res.status(400).json({
+        message:"No other User"
+      })
+      return;
+    }
+    if(messagesToMarkSeen.length >0){
+      const otherUserSocketId=getReceiverSocketId(otherUserId.toString());
+      if(otherUserSocketId){
+        io.to(otherUserSocketId).emit("messageSeen",{
+          chatid:chatId,
+          seenBy:userId,
+          messageIds:messagesToMarkSeen.map((msg)=>msg._id)
+        })
+      }
+    }
+    res.json({
+      messages,
+      user:data,
+    })
   } catch (err) {
-    otherUser = { _id: otherUserId, name: "Unknown User" };
-  }
-  return res.status(200).json({
+   console.log(error);
+   res.json({
     messages,
-    otherUser,
-  });
+    user:{_id:otherUserId, username:"unknow error"}
+   })
+  }
+
 });
