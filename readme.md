@@ -1,4 +1,4 @@
-# 🚀 Full Microservices Chat Application — Complete Setup Guide
+#  Full Microservices Chat Application — Complete Setup Guide
 
 This project contains **4 microservices** working together:
 
@@ -12,7 +12,7 @@ Each service communicates via **REST, Redis, RabbitMQ, and Socket.io**.
 
 ---
 
-# 🏗️ Project Architecture
+#  Project Architecture
 
 ```
 📦 project-root
@@ -25,7 +25,7 @@ Each service communicates via **REST, Redis, RabbitMQ, and Socket.io**.
 
 ---
 
-# 🔧 Technologies Used
+#  Technologies Used
 
 ### **Backend Microservices**
 - Node.js
@@ -60,9 +60,9 @@ Each service communicates via **REST, Redis, RabbitMQ, and Socket.io**.
 
 ---
 
-# ⚙️ Backend API Documentation
+#  Backend API Documentation
 
-## 📌 **User Microservice API**
+##  **User Microservice API**
 
 ### **POST /login**
 User login → sends OTP via mail service.
@@ -84,7 +84,7 @@ Update username.
 
 ---
 
-## 📌 **Chat Microservice API**
+##  **Chat Microservice API**
 
 ### **POST /chat/create-chat** *(protected)*
 Create private chat.
@@ -100,7 +100,7 @@ Get all messages of a chat.
 
 ---
 
-# 📨 Mail Microservice
+#  Mail Microservice
 
 Handles email sending using:
 - NodeMailer
@@ -113,7 +113,7 @@ User → Login → User MS → Publish message → RabbitMQ → Mail MS → Send
 
 ---
 
-# 🔥 Realtime Communication — Socket.io
+#  Realtime Communication — Socket.io
 
 ### Chat Microservice socket events:
 - `connection`
@@ -132,14 +132,14 @@ io(CHAT_SERVICE_URL, {
 
 ---
 
-# 🧠 Redis Usage
+#  Redis Usage
 - Store online users list
 - SocketId ↔ UserId mapping
 - Improve user/chats resolving
 
 ---
 
-# 🐇 RabbitMQ Usage
+#  RabbitMQ Usage
 
 ### Exchange: `email-service`
 ### Queue: `otp_queue`
@@ -148,7 +148,7 @@ User-MS publishes → Mail-MS consumes.
 
 ---
 
-# 🐳 Docker Setup
+#  Docker Setup
 
 ## Root `docker-compose.yml`
 
@@ -163,18 +163,18 @@ Includes:
 
 ---
 
-# 🛠️ How to Run the Entire System
+#  How to Run the Entire System
 
-## 1️⃣ Install Docker & Docker Compose
+##  Install Docker & Docker Compose
 https://docs.docker.com/get-docker/
 
-## 2️⃣ Clone the project
+##  Clone the project
 ```
 git clone https://github.com/yourrepo/project.git
 cd project
 ```
 
-## 3️⃣ Add `.env` files to all services
+##  Add `.env` files to all services
 Each microservice folder must contain:
 ```
 PORT=
@@ -201,28 +201,28 @@ docker-compose up -d
 
 ---
 
-# 🚀 After Running
+# After Running
 
-### 🌐 Frontend
+###  Frontend
 http://localhost:3000
 
-### 👤 User Service
+###  User Service
 http://localhost:8090
 
-### 💬 Chat Service
+###  Chat Service
 http://localhost:8091
 
-### 📧 Mail Service
+###  Mail Service
 http://localhost:8089
 
-### 🐇 RabbitMQ Dashboard
+###  RabbitMQ Dashboard
 http://localhost:15672
 (username: guest, password: guest)
 
-### 🗃️ Redis
+###  Redis
 localhost:6379
 
-### 🍃 MongoDB
+###  MongoDB
 localhost:27017
 
 ---
@@ -263,7 +263,7 @@ POST /chat/message (multipart form)
 
 ---
 
-# 🧩 Frontend Tech Overview
+#  Frontend Tech Overview
 
 ### Uses:
 - **Next.js App Router**
@@ -278,7 +278,7 @@ POST /chat/message (multipart form)
 
 ---
 
-# 🎯 Final Notes
+#  Final Notes
 
 This repo uses:
 - Microservice architecture
