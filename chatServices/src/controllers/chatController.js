@@ -177,7 +177,7 @@ if (!otherUserId) {
     io.to(senderSocketId).emit("newMessage",savedMessage)
   }
   if(isReceiverInChatRoom && senderSocketId){
-    io.to(senderSocketId).emit("messageSeen",{
+    io.to(senderSocketId).emit("messagesSeen",{
       chatId:chatId,
       seenBy:otherUserId,
       messageIds:[savedMessage._id]

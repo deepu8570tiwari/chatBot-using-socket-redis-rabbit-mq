@@ -70,3 +70,52 @@ export const getuserById=tryCatch(async(req,res)=>{
     const user= await User.findById(req.params.id);
     res.status(200).json({status:true, message:"Your profile", user:user});
 })
+
+
+export const updateUsername = async (req, res) => {
+  try {
+    const userId = req.user?._id;
+    const { username } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({
+        status: false,
+        message: "User not authenticated",
+      });
+    }
+
+    if (!username || username.trim() === "") {
+      return res.status(400).json({
+        status: false,
+        message: "Username is required",
+      });
+    }
+
+    // Update username
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { username: username.trim() },
+      { new: true }
+    ).select("-password");
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        status: false,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      message: "Username updated successfully",
+      user: updatedUser,
+    });
+
+  } catch (error) {
+    console.error("Update username error:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Internal server error",
+    });
+  }
+};

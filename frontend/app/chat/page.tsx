@@ -162,6 +162,10 @@ const ChatApp = () => {
       })
       setMessage("");
       const displayText=imageFile?"📷 image":message;
+      moveChatToTop(selectedUser!, {
+        text:displayText,
+        sender:data.sender
+      }, false)
     } catch (error:any) {
       toast.error(error.response.data.message);
     }
@@ -203,6 +207,32 @@ const ChatApp = () => {
           return currentMessages;
         })
         moveChatToTop(message.chatId, message, false)
+      }else{
+        moveChatToTop(message.chatId, message, true)
+      }
+    })
+    socket?.on("messagesSeen",(data)=>{
+      console.log("Message Seen by", data);
+      if(selectedUser==data.chatId){
+        setMessages((prev)=>{
+          if(!prev) return null;
+          return prev.map((msg)=>{
+            if(msg.sender===loggedInUser?._id && data.messageIds && data.messageIds.includes(msg._id)){
+              return {
+                ...msg,
+                seen:true,
+                seenAt:new Date().toString()
+              }
+            }else if(msg.sender===loggedInUser?._id && !data.messageIds){
+              return {
+                 ...msg,
+                seen:true,
+                seenAt:new Date().toString()
+              }
+            }
+            return msg;
+          })
+        })
       }
     })
     socket?.on("userTyping",(data)=>{
@@ -219,6 +249,7 @@ const ChatApp = () => {
     })
     return ()=>{
       socket?.off("newMessage");
+      socket?.off("messagesSeen");
       socket?.off("userTyping");
       socket?.off("userStoppedTyping");
 
